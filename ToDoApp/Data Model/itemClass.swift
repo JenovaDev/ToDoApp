@@ -9,7 +9,7 @@
 import Foundation
 
 
-class item {
-    var title : String = ""
-    var done : Bool = false
+class item: Codable {
+    var title: String = ""
+    var done: Bool = false
 }

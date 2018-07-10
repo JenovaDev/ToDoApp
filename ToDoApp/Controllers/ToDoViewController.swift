@@ -14,24 +14,12 @@ class ToDoViewController: UITableViewController {
     
     let defaults = UserDefaults.standard
     
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = item()
-        newItem.title = "Learn iOS Development"
-        itemArray.append(newItem)
-        
-        let newItem2 = item()
-        newItem2.title = "Go to the Gym"
-        itemArray.append(newItem2)
-        
-        let newItem3 = item()
-        newItem3.title = "Get this Money!!"
-        itemArray.append(newItem3)
-        
-        if let items = defaults.array(forKey: "ToDoListArray") as? [item] {
-            itemArray = items
-        }
+        loadItems()
     }
 
 
@@ -84,9 +72,7 @@ class ToDoViewController: UITableViewController {
             
             self.itemArray.append(newItem)
             
-            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
-            
-            self.tableView.reloadData()
+            self.saveItems()
            
         }
         
@@ -100,5 +86,33 @@ class ToDoViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    //MARK - MOdel Manipulation Methods
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        
+        self.tableView.reloadData()
+        
+    }
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([item].self, from: data)
+            } catch {
+                print("Error decoding item array, \(error)")
+            }
+        }
+    }
+
+
 }
 
